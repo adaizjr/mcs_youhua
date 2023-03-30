@@ -111,39 +111,89 @@ namespace zjr_mcs
         }
     }
 
-    [HarmonyPatch(typeof(DongFuManager), "ShouHuo", new Type[] { typeof(int), typeof(int) })]
+    //[HarmonyPatch(typeof(DongFuManager), "ShouHuo", new Type[] { typeof(int), typeof(int) })]
+    //class dongfushouhuoPatch
+    //{
+    //    public static bool Prefix(ref int dongFuID, ref int slot)
+    //    {
+    //        DongFuData dongFuData = new DongFuData(dongFuID);
+    //        dongFuData.Load();
+    //        KBEngine.Avatar player = PlayerEx.Player;
+    //        int id = dongFuData.LingTian[slot].ID;
+    //        if (id == 0)
+    //        {
+    //            Debug.LogError("灵田收获异常，不能收获id为0的草药");
+    //        }
+    //        else
+    //        {
+    //            _ItemJsonData itemJsonData = _ItemJsonData.DataDict[id];
+    //            int num = dongFuData.LingTian[slot].LingLi / itemJsonData.price;
+    //            if (num == 0)
+    //            {
+    //                player.addItem(id, num + 1, Tools.CreateItemSeid(id), false);
+    //                dongFuData.LingTian[slot].ID = 0;
+    //                dongFuData.LingTian[slot].LingLi = 0;
+    //                dongFuData.Save();
+    //            }
+    //            else
+    //            {
+    //                player.addItem(id, num, Tools.CreateItemSeid(id), false);
+    //                dongFuData.LingTian[slot].LingLi -= itemJsonData.price * num;
+    //                dongFuData.Save();
+    //            }
+    //        }
+    //        UIDongFu.Inst.InitData();
+    //        DongFuManager.RefreshDongFuShow();
+
+    //        return false;
+    //    }
+    //}
+
+    [HarmonyPatch(typeof(UILingTianPanel), "OnShouGeBtnClick")]
     class dongfushouhuoPatch
     {
-        public static bool Prefix(ref int dongFuID, ref int slot)
+        public static bool Prefix(UILingTianPanel __instance)
         {
-            DongFuData dongFuData = new DongFuData(dongFuID);
-            dongFuData.Load();
-            KBEngine.Avatar player = PlayerEx.Player;
-            int id = dongFuData.LingTian[slot].ID;
-            if (id == 0)
+            __instance.IsShouGe = !__instance.IsShouGe;
+            if (__instance.IsShouGe)
             {
-                Debug.LogError("灵田收获异常，不能收获id为0的草药");
-            }
-            else
-            {
-                _ItemJsonData itemJsonData = _ItemJsonData.DataDict[id];
-                int num = dongFuData.LingTian[slot].LingLi / itemJsonData.price;
-                if (num == 0)
+                __instance.ShouGeBtn1.SetActive(false);
+                __instance.ShouGeBtn2.SetActive(true);
+
+                int dongFuID = DongFuManager.NowDongFuID;
+                DongFuData dongFuData = new DongFuData(dongFuID);
+                dongFuData.Load();
+                KBEngine.Avatar player = PlayerEx.Player;
+                for (int slot = 0; slot < DongFuManager.LingTianCount; slot++)
                 {
-                    player.addItem(id, num + 1, Tools.CreateItemSeid(id), false);
-                    dongFuData.LingTian[slot].ID = 0;
-                    dongFuData.LingTian[slot].LingLi = 0;
-                    dongFuData.Save();
+                    int id = dongFuData.LingTian[slot].ID;
+                    if (id == 0)
+                    {
+                        //Debug.LogError("灵田收获异常，不能收获id为0的草药");
+                    }
+                    else
+                    {
+                        _ItemJsonData itemJsonData = _ItemJsonData.DataDict[id];
+                        int num = dongFuData.LingTian[slot].LingLi / itemJsonData.price;
+                        if (num > 0)
+                        {
+                            player.addItem(id, num, Tools.CreateItemSeid(id), false);
+                            dongFuData.LingTian[slot].LingLi -= itemJsonData.price * num;
+                        }
+                    }
                 }
-                else
+                dongFuData.Save();
+                UIDongFu.Inst.InitData();
+                foreach (UILingTianCell uilingTianCell in __instance.LingTianList)
                 {
-                    player.addItem(id, num, Tools.CreateItemSeid(id), false);
-                    dongFuData.LingTian[slot].LingLi -= itemJsonData.price * num;
-                    dongFuData.Save();
+                    uilingTianCell.RefreshUI();
                 }
+                __instance.PlayerInventory.RefreshUI();
+                //DongFuManager.RefreshDongFuShow();
+                return false;
             }
-            UIDongFu.Inst.InitData();
-            DongFuManager.RefreshDongFuShow();
+            __instance.ShouGeBtn1.SetActive(true);
+            __instance.ShouGeBtn2.SetActive(false);
 
             return false;
         }
