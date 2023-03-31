@@ -103,51 +103,12 @@ namespace zjr_mcs
                     arr_tmp[tmp_big]++;
                     tmp_zong++;
                 }
-
                 __result = "总计" + tmp_zong.ToString() + "，练气" + arr_tmp[0].ToString() + "，筑基" + arr_tmp[1].ToString() + "，金丹" + arr_tmp[2].ToString() + "，元婴" + arr_tmp[3].ToString() + "，化神" + arr_tmp[4].ToString();
                 return false;
             }
             return true;
         }
     }
-
-    //[HarmonyPatch(typeof(DongFuManager), "ShouHuo", new Type[] { typeof(int), typeof(int) })]
-    //class dongfushouhuoPatch
-    //{
-    //    public static bool Prefix(ref int dongFuID, ref int slot)
-    //    {
-    //        DongFuData dongFuData = new DongFuData(dongFuID);
-    //        dongFuData.Load();
-    //        KBEngine.Avatar player = PlayerEx.Player;
-    //        int id = dongFuData.LingTian[slot].ID;
-    //        if (id == 0)
-    //        {
-    //            Debug.LogError("灵田收获异常，不能收获id为0的草药");
-    //        }
-    //        else
-    //        {
-    //            _ItemJsonData itemJsonData = _ItemJsonData.DataDict[id];
-    //            int num = dongFuData.LingTian[slot].LingLi / itemJsonData.price;
-    //            if (num == 0)
-    //            {
-    //                player.addItem(id, num + 1, Tools.CreateItemSeid(id), false);
-    //                dongFuData.LingTian[slot].ID = 0;
-    //                dongFuData.LingTian[slot].LingLi = 0;
-    //                dongFuData.Save();
-    //            }
-    //            else
-    //            {
-    //                player.addItem(id, num, Tools.CreateItemSeid(id), false);
-    //                dongFuData.LingTian[slot].LingLi -= itemJsonData.price * num;
-    //                dongFuData.Save();
-    //            }
-    //        }
-    //        UIDongFu.Inst.InitData();
-    //        DongFuManager.RefreshDongFuShow();
-
-    //        return false;
-    //    }
-    //}
 
     [HarmonyPatch(typeof(UILingTianPanel), "OnShouGeBtnClick")]
     class dongfushouhuoPatch
@@ -196,6 +157,40 @@ namespace zjr_mcs
             __instance.ShouGeBtn2.SetActive(false);
 
             return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(CyEmailCell), "Init", new Type[] { typeof(EmailData), typeof(bool) })]
+    class shouemailPatch
+    {
+        public static void Postfix(CyEmailCell __instance, ref EmailData emailData, ref bool isDeath)
+        {
+            if (emailData.isOld)
+            {
+
+            }
+            else
+            {
+                try
+                {
+                    if (emailData.actionId == 1)
+                    {
+                        if (emailData.item[1] > 0)
+                        {
+                            __instance.submitBtn.gameObject.SetActive(false);
+                            Tools.instance.getPlayer().addItem(emailData.item[0], emailData.item[1], Tools.CreateItemSeid(emailData.item[0]), false);
+                            __instance.item.ShowHasGet();
+                            __instance.UpdateSize();
+                            emailData.item[1] = -1;
+                        }
+                    }
+                }
+                catch (Exception message)
+                {
+                    Debug.LogError(message);
+                    Debug.LogError(string.Format("物品ID:{0}不存在", emailData.item[0]));
+                }
+            }
         }
     }
 }
