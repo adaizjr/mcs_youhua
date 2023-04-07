@@ -81,7 +81,10 @@ namespace zjr_mcs
             Avatar player = Tools.instance.getPlayer();
 
             if (!player.emailDateMag.cyNpcList.Contains(mailPatch.mailid))
+            {
                 player.emailDateMag.cyNpcList.Add(mailPatch.mailid);
+            }
+            player.emailDateMag.hasReadEmailDictionary[mailPatch.mailid.ToString()].Clear();
             player.emailDateMag.AddNewEmail(mailPatch.mailid.ToString(), new EmailData(mailPatch.mailid, 1, true, true, player.worldTimeMag.nowTime));
         }
     }
@@ -98,10 +101,14 @@ namespace zjr_mcs
                 int tmp_zong = 0;
                 foreach (var tmp in jsonData.instance.AvatarJsonData.list)
                 {
+                    int tmp_id = tmp["id"].I;
                     int tmp_level = tmp["Level"].I;
                     int tmp_big = (tmp_level - 1) / 3;
-                    arr_tmp[tmp_big]++;
-                    tmp_zong++;
+                    if (tmp_id >= 20000)
+                    {
+                        arr_tmp[tmp_big]++;
+                        tmp_zong++;
+                    }
                 }
                 __result = "总计" + tmp_zong.ToString() + "，练气" + arr_tmp[0].ToString() + "，筑基" + arr_tmp[1].ToString() + "，金丹" + arr_tmp[2].ToString() + "，元婴" + arr_tmp[3].ToString() + "，化神" + arr_tmp[4].ToString();
                 return false;
