@@ -84,7 +84,10 @@ namespace zjr_mcs
             {
                 player.emailDateMag.cyNpcList.Add(mailPatch.mailid);
             }
-            player.emailDateMag.hasReadEmailDictionary[mailPatch.mailid.ToString()].Clear();
+            if (player.emailDateMag.hasReadEmailDictionary.ContainsKey(mailPatch.mailid.ToString()))
+            {
+                player.emailDateMag.hasReadEmailDictionary[mailPatch.mailid.ToString()].Clear();
+            }
             player.emailDateMag.AddNewEmail(mailPatch.mailid.ToString(), new EmailData(mailPatch.mailid, 1, true, true, player.worldTimeMag.nowTime));
         }
     }
