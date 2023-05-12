@@ -100,20 +100,25 @@ namespace zjr_mcs
         {
             if (emailData.npcId == mailid)
             {
-                int[] arr_tmp = new int[10];
+                int[] arr_dengji = new int[10];
+                //int[] arr_menpai = new int[10];
                 int tmp_zong = 0;
                 foreach (var tmp in jsonData.instance.AvatarJsonData.list)
                 {
                     int tmp_id = tmp["id"].I;
                     int tmp_level = tmp["Level"].I;
                     int tmp_big = (tmp_level - 1) / 3;
+                    //int tmp_menpai = tmp["MenPai"].I;
                     if (tmp_id >= 20000)
                     {
-                        arr_tmp[tmp_big]++;
+                        arr_dengji[tmp_big]++;
                         tmp_zong++;
+                        //if (tmp_menpai > 0)
+                        //    arr_menpai[tmp_menpai]++;
                     }
                 }
-                __result = "总计" + tmp_zong.ToString() + "，练气" + arr_tmp[0].ToString() + "，筑基" + arr_tmp[1].ToString() + "，金丹" + arr_tmp[2].ToString() + "，元婴" + arr_tmp[3].ToString() + "，化神" + arr_tmp[4].ToString();
+                __result = "总计" + tmp_zong.ToString() + "，练气" + arr_dengji[0].ToString() + "，筑基" + arr_dengji[1].ToString() + "，金丹" + arr_dengji[2].ToString() + "，元婴" + arr_dengji[3].ToString() + "，化神" + arr_dengji[4].ToString();
+                //+ "，" + arr_menpai[1].ToString() + "，" + arr_menpai[2].ToString() + "，" + arr_menpai[3].ToString() + "，" + arr_menpai[4].ToString() + "，" + arr_menpai[5].ToString() + "，" + arr_menpai[6].ToString();
                 return false;
             }
             return true;
@@ -201,6 +206,25 @@ namespace zjr_mcs
                     Debug.LogError(string.Format("物品ID:{0}不存在", emailData.item[0]));
                 }
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(Tab.WuDaoSlot), "Study")]
+    class WuDaoSlotPatch
+    {
+        public static bool Prefix(Tab.WuDaoSlot __instance)
+        {
+            if (__instance.State == 1 && !PlayerEx.Player.SelectTianFuID.HasItem(316))
+            {
+                myclickyiwang(__instance);
+                return false;
+            }
+            return true;
+        }
+        static void myclickyiwang(Tab.WuDaoSlot __instance)
+        {
+            MethodInfo tmp_method_ClickYiWang = typeof(Tab.WuDaoSlot).GetMethod("ClickYiWang", BindingFlags.Instance | BindingFlags.NonPublic);
+            tmp_method_ClickYiWang.Invoke(__instance, null);
         }
     }
 }
