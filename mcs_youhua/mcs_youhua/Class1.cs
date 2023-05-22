@@ -19,64 +19,72 @@ namespace zjr_mcs
             // 使用Debug.Log()方法来将文本输出到控制台
             Debug.Log("Hello,mcs_youhua!");
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(UINPCSVItem), "CompareTo", new Type[] { typeof(object) })]
-        public static void UINPCSVItem_CompareTo_Postfix(UINPCSVItem __instance, ref int __result, ref object obj)
-        {
-            if (__result == 0)
-            {
-                if (__instance.NPCData.Exp < ((UINPCSVItem)obj).NPCData.Exp)
-                {
-                    __result = 1;
-                }
-                if (__instance.NPCData.Exp == ((UINPCSVItem)obj).NPCData.Exp)
-                {
-                    __result = 0;
-                }
-                __result = -1;
-            }
+            Harmony.CreateAndPatchAll(typeof(youhuaBepInExMod));
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UINPCSVItem), "RefreshUI")]
         public static void UINPCSVItem_RefreshUI_Postfix(UINPCSVItem __instance)
         {
-            __instance.NPCTitle.text = __instance.NPCData.Title + " " + __instance.NPCData.BigLevel.ToBigLevelName();
+            __instance.NPCTitle.text = __instance.NPCData.Title + "" + __instance.NPCData.BigLevel.ToString();
         }
-        //private void Update()
-        //{
-        //    bool flag = Tools.instance == null;
-        //    if (!flag)
-        //    {
-        //        Avatar player = Tools.instance.getPlayer();
-        //        bool flag2 = player == null;
-        //        if (!flag2)
-        //        {
-        //            bool keyUp = Input.GetKeyUp(KeyCode.Insert);
-        //            if (keyUp)
-        //            {
-        //                bool flag3 = CyUIMag.inst != null && CyUIMag.inst.npcList.friendCells.Count > 0;
-        //                if (flag3)
-        //                {
-        //                    OrderChuanYin();
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-        //public static void OrderChuanYin()
-        //{
-        //    Avatar player = Tools.instance.getPlayer();
-        //    player.emailDateMag.cyNpcList.Sort();
-        //    CyUIMag.inst.npcList.Init();
-        //    CyUIMag.inst.No.SetActive(false);
-        //}
+
+        private void Update()
+        {
+            bool flag = Tools.instance == null;
+            if (!flag)
+            {
+                Avatar player = Tools.instance.getPlayer();
+                bool flag2 = player == null;
+                if (!flag2)
+                {
+                    bool keyUp = Input.GetKeyUp(KeyCode.Delete);
+                    if (keyUp)
+                    {
+                        USelectNum.Show("清空垃圾邮件，1取消，2清除", 1, 2, delegate (int selectNum)
+                        {
+                            if (selectNum == 2)
+                                ClearChuanYin();
+                        }, null);
+                    }
+                }
+            }
+        }
+        public static void ClearChuanYin()
+        {
+            Tools.instance.getPlayer().NewChuanYingList.Clear();
+            //Tools.instance.getPlayer().emailDateMag.hasReadEmailDictionary.Clear();
+            foreach (var tmp_kvp in Tools.instance.getPlayer().emailDateMag.hasReadEmailDictionary)
+            {
+                List<EmailData> tmp_ed_new = new List<EmailData>();
+                List<EmailData> tmp_ed = tmp_kvp.Value;
+                foreach (var tmp in tmp_ed)
+                {
+                    if (tmp.actionId == 1)
+                    {
+                        if (tmp.item[1] > 0)
+                            tmp_ed_new.Add(tmp);
+                    }
+                    else if (tmp.actionId == 2)
+                    {
+                        if (!tmp.CheckIsOut() && !tmp.isComplete)
+                            tmp_ed_new.Add(tmp);
+                    }
+                    else if (!tmp.isAnswer)
+                    {
+                        tmp_ed_new.Add(tmp);
+                    }
+                }
+                tmp_ed.Clear();
+                foreach (var tmp in tmp_ed_new)
+                    tmp_ed.Add(tmp);
+            }
+            UIPopTip.Inst.Pop("垃圾邮件清空！", 0);
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(script.ExchangeMeeting.UI.Ctr.PublishCtr), "Publish")]
-        public static bool ExchangeIO_Publish_Prefix(script.ExchangeMeeting.UI.Ctr.PublishCtr __instance)
+        public static bool PublishCtr_Publish_Prefix(script.ExchangeMeeting.UI.Ctr.PublishCtr __instance)
         {
             bool value = Traverse.Create(__instance).Method("CheckCanPublish", Array.Empty<object>()).GetValue<bool>();
             if (value)
@@ -258,6 +266,28 @@ namespace zjr_mcs
                 UIPopTip.Inst.Pop("发布任务成功", 0);
             }, null);
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(script.ExchangeMeeting.Logic.UpdateExchange), "SuccessExchange", new Type[] { typeof(script.ExchangeMeeting.Logic.Interface.IExchangeData) })]
+        public static bool UpdateExchange_SuccessExchange_Prefix(script.ExchangeMeeting.Logic.UpdateExchange __instance, ref script.ExchangeMeeting.Logic.Interface.IExchangeData data)
+        {
+            Tools.instance.getPlayer().addItem(data.NeedItems[0].Id, 1, Tools.CreateItemSeid(data.NeedItems[0].Id));
+            string msg = "交易会 " + data.NeedItems[0].GetName();
+            UIPopTip.Inst.Pop(msg, PopTipIconType.叹号);
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(script.MenPaiTask.ZhangLao.UI.Ctr.ElderTaskCtr), "CreateTaskList")]
+        public static bool ElderTaskCtr_CreateTaskList_Prefix(script.MenPaiTask.ZhangLao.UI.Ctr.ElderTaskCtr __instance)
+        {
+            script.MenPaiTask.ElderTaskMag elderTaskMag = Tools.instance.getPlayer().ElderTaskMag;
+            foreach (script.MenPaiTask.ElderTask data in elderTaskMag.GetCompleteTaskList())
+            {
+                Tools.instance.getPlayer().ElderTaskMag.PlayerGetTaskItem(data);
+            }
+            return true;
+        }
     }
 
     [HarmonyPatch(typeof(jsonData), "Preload")]
@@ -341,24 +371,19 @@ namespace zjr_mcs
             if (emailData.npcId == mailid)
             {
                 int[] arr_dengji = new int[10];
-                //int[] arr_menpai = new int[10];
                 int tmp_zong = 0;
                 foreach (var tmp in jsonData.instance.AvatarJsonData.list)
                 {
                     int tmp_id = tmp["id"].I;
                     int tmp_level = tmp["Level"].I;
                     int tmp_big = (tmp_level - 1) / 3;
-                    //int tmp_menpai = tmp["MenPai"].I;
                     if (tmp_id >= 20000)
                     {
                         arr_dengji[tmp_big]++;
                         tmp_zong++;
-                        //if (tmp_menpai > 0)
-                        //    arr_menpai[tmp_menpai]++;
                     }
                 }
                 __result = "总计" + tmp_zong.ToString() + "，练气" + arr_dengji[0].ToString() + "，筑基" + arr_dengji[1].ToString() + "，金丹" + arr_dengji[2].ToString() + "，元婴" + arr_dengji[3].ToString() + "，化神" + arr_dengji[4].ToString();
-                //+ "，" + arr_menpai[1].ToString() + "，" + arr_menpai[2].ToString() + "，" + arr_menpai[3].ToString() + "，" + arr_menpai[4].ToString() + "，" + arr_menpai[5].ToString() + "，" + arr_menpai[6].ToString();
                 return false;
             }
             return true;
@@ -422,7 +447,19 @@ namespace zjr_mcs
         {
             if (emailData.isOld)
             {
-
+                //JSONObject ChuanYingData = Tools.instance.getPlayer().NewChuanYingList[emailData.oldId.ToString()];
+                //if (!ChuanYingData.HasField("ItemID") || ChuanYingData["ItemID"].I <= 0)
+                //{
+                //    return;
+                //}
+                //if (!ChuanYingData["ItemHasGet"].b)
+                //{
+                //    __instance.submitBtn.gameObject.SetActive(false);
+                //    ChuanYingData.SetField("ItemHasGet", true);
+                //    Tools.instance.getPlayer().addItem(ChuanYingData["ItemID"].I, 1, Tools.CreateItemSeid(ChuanYingData["ItemID"].I));
+                //    __instance.item.ShowHasGet();
+                //    __instance.UpdateSize();
+                //}
             }
             else
             {
