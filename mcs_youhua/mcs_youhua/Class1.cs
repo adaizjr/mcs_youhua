@@ -41,45 +41,58 @@ namespace zjr_mcs
                     bool keyUp = Input.GetKeyUp(KeyCode.Delete);
                     if (keyUp)
                     {
-                        USelectNum.Show("清空垃圾邮件，1取消，2清除", 1, 2, delegate (int selectNum)
+                        USelectNum.Show("清空邮件，1垃圾，2所有", 1, 2, delegate (int selectNum)
                         {
-                            if (selectNum == 2)
-                                ClearChuanYin();
+                            ClearChuanYin(selectNum == 2);
                         }, null);
                     }
                 }
             }
         }
-        public static void ClearChuanYin()
+        public static void ClearChuanYin(bool i_b_all)
         {
-            Tools.instance.getPlayer().NewChuanYingList.Clear();
-            //Tools.instance.getPlayer().emailDateMag.hasReadEmailDictionary.Clear();
-            foreach (var tmp_kvp in Tools.instance.getPlayer().emailDateMag.hasReadEmailDictionary)
+            if (i_b_all)
             {
-                List<EmailData> tmp_ed_new = new List<EmailData>();
-                List<EmailData> tmp_ed = tmp_kvp.Value;
-                foreach (var tmp in tmp_ed)
-                {
-                    if (tmp.actionId == 1)
-                    {
-                        if (tmp.item[1] > 0)
-                            tmp_ed_new.Add(tmp);
-                    }
-                    else if (tmp.actionId == 2)
-                    {
-                        if (!tmp.CheckIsOut() && !tmp.isComplete)
-                            tmp_ed_new.Add(tmp);
-                    }
-                    else if (!tmp.isAnswer)
-                    {
-                        tmp_ed_new.Add(tmp);
-                    }
-                }
-                tmp_ed.Clear();
-                foreach (var tmp in tmp_ed_new)
-                    tmp_ed.Add(tmp);
+                //Tools.instance.getPlayer().NewChuanYingList.Clear();
+                Tools.instance.getPlayer().emailDateMag.hasReadEmailDictionary.Clear();
+                UIPopTip.Inst.Pop("清空所有邮件！", 0);
             }
-            UIPopTip.Inst.Pop("垃圾邮件清空！", 0);
+            else
+            {
+                foreach (var tmp_kvp in Tools.instance.getPlayer().emailDateMag.hasReadEmailDictionary)
+                {
+                    List<EmailData> tmp_ed_new = new List<EmailData>();
+                    List<EmailData> tmp_ed = tmp_kvp.Value;
+                    foreach (var tmp in tmp_ed)
+                    {
+                        if (tmp.actionId == 1)
+                        {
+                            if (tmp.item[1] > 0)
+                                tmp_ed_new.Add(tmp);
+                        }
+                        else if (tmp.actionId == 2)
+                        {
+                            if (!tmp.CheckIsOut() && !tmp.isComplete)
+                                tmp_ed_new.Add(tmp);
+                        }
+                        else if (tmp.isAnswer)
+                        {
+                        }
+                        else if (tmp.isPlayer)
+                        {
+                        }
+                        else
+                        {
+                            tmp_ed_new.Add(tmp);
+                        }
+                    }
+                    tmp_ed.Clear();
+                    foreach (var tmp in tmp_ed_new)
+                        tmp_ed.Add(tmp);
+                }
+                UIPopTip.Inst.Pop("清空垃圾邮件！", 0);
+                Tools.instance.getPlayer().emailDateMag.AddNewEmail(mailPatch.mailid.ToString(), new EmailData(mailPatch.mailid, 1, true, true, Tools.instance.getPlayer().worldTimeMag.nowTime));
+            }
         }
 
         [HarmonyPrefix]
@@ -271,9 +284,7 @@ namespace zjr_mcs
         [HarmonyPatch(typeof(script.ExchangeMeeting.Logic.UpdateExchange), "SuccessExchange", new Type[] { typeof(script.ExchangeMeeting.Logic.Interface.IExchangeData) })]
         public static bool UpdateExchange_SuccessExchange_Prefix(script.ExchangeMeeting.Logic.UpdateExchange __instance, ref script.ExchangeMeeting.Logic.Interface.IExchangeData data)
         {
-            Tools.instance.getPlayer().addItem(data.NeedItems[0].Id, 1, Tools.CreateItemSeid(data.NeedItems[0].Id));
-            string msg = "交易会 " + data.NeedItems[0].GetName();
-            UIPopTip.Inst.Pop(msg, PopTipIconType.叹号);
+            Tools.instance.getPlayer().addItem(data.NeedItems[0].Id, 1, Tools.CreateItemSeid(data.NeedItems[0].Id), true);
             return false;
         }
 
