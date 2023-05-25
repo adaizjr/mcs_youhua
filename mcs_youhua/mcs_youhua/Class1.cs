@@ -39,7 +39,7 @@ namespace zjr_mcs
                 if (!flag2)
                 {
                     bool keyUp = Input.GetKeyUp(KeyCode.Delete);
-                    if (keyUp)
+                    if (keyUp && !USelectNum.IsShow)
                     {
                         USelectNum.Show("清空邮件，1垃圾，2所有", 1, 2, delegate (int selectNum)
                         {
@@ -299,6 +299,59 @@ namespace zjr_mcs
             }
             return true;
         }
+
+        //[HarmonyPrefix]
+        //[HarmonyPatch(typeof(EmailDataMag), "SendToPlayer")]
+        //public static bool EmailDataMag_SendToPlayer_Prefix(EmailDataMag __instance, ref int npcId, ref int contentId, ref int contentNum, ref int actionId, ref int itemId, ref int itemNum, ref int outTime, ref int addHaoGanDu, ref string sendTime)
+        //{
+        //    if (actionId == 2)
+        //    {
+        //        //jsonData.instance.ItemJsonData[itemId.ToString()]["seid"].list.("7");
+        //        if (itemId == 5119 || itemId == 5211 || itemId == 5308 || itemId == 5404 || itemId == 5517)
+        //        {
+        //            if (NpcJieSuanManager.inst.ImportantNpcBangDingDictionary.ContainsKey(npcId))
+        //            {
+        //                npcId = NpcJieSuanManager.inst.ImportantNpcBangDingDictionary[npcId];
+        //            }
+        //            EmailData emailData = new EmailData(npcId, false, false, new List<int> { contentId, contentNum }, actionId, new List<int> { itemId, itemNum }, outTime, addHaoGanDu, sendTime);
+        //            string str = jsonData.instance.CyNpcDuiBaiData[contentId.ToString()][string.Format("dir{0}", contentNum)].Str;
+        //            __instance.GetEmailContentKey(str, emailData);
+        //            if (str.Contains("{DiDian}"))
+        //            {
+        //                emailData.sceneName = NpcJieSuanManager.inst.npcMap.GetNpcSceneName(npcId);
+        //            }
+        //            emailData.isComplete = true;
+        //            __instance.AddNewEmail(npcId.ToString(), emailData);
+
+        //            NPCEx.AddFavor(emailData.npcId, emailData.addHaoGanDu, false, true);
+        //            //int addCount = jsonData.instance.ItemJsonData[emailData.item[0].ToString()]["price"].I * emailData.item[1];
+        //            //NPCEx.AddQingFen(emailData.npcId, addCount, false);
+        //            NpcJieSuanManager.inst.AddItemToNpcBackpack(emailData.npcId, emailData.item[0], emailData.item[1], null, false);
+        //            __instance.AuToSendToPlayer(emailData.npcId, 997, 997, sendTime, null);
+
+        //            return false;
+        //        }
+        //    }
+        //    return true;
+        //}
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EmailDataMag), "AddNewEmail", new Type[] { typeof(int), typeof(EmailData) })]
+        public static void EmailDataMag_AddNewEmail_Postfix(EmailDataMag __instance, ref int npcId, ref EmailData emailData)
+        {
+            if (emailData.actionId == 2)
+            {
+                int itemId = emailData.item[0];
+                if (itemId == 5119 || itemId == 5211 || itemId == 5308 || itemId == 5404 || itemId == 5517)
+                {
+                    emailData.isComplete = true;
+                    NPCEx.AddFavor(emailData.npcId, emailData.addHaoGanDu, false, true);
+                    //int addCount = jsonData.instance.ItemJsonData[emailData.item[0].ToString()]["price"].I * emailData.item[1];
+                    //NPCEx.AddQingFen(emailData.npcId, addCount, false);
+                    NpcJieSuanManager.inst.AddItemToNpcBackpack(emailData.npcId, emailData.item[0], emailData.item[1], null, false);
+                    __instance.AuToSendToPlayer(emailData.npcId, 997, 997, emailData.sendTime, null);
+                }
+            }
+        }
     }
 
     [HarmonyPatch(typeof(jsonData), "Preload")]
@@ -381,6 +434,7 @@ namespace zjr_mcs
         {
             if (emailData.npcId == mailid)
             {
+                __instance.cySendBtn.gameObject.SetActive(false);
                 int[] arr_dengji = new int[10];
                 int tmp_zong = 0;
                 foreach (var tmp in jsonData.instance.AvatarJsonData.list)
