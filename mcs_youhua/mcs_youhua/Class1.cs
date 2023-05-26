@@ -335,20 +335,20 @@ namespace zjr_mcs
         //    return true;
         //}
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(EmailDataMag), "AddNewEmail", new Type[] { typeof(int), typeof(EmailData) })]
-        public static void EmailDataMag_AddNewEmail_Postfix(EmailDataMag __instance, ref int npcId, ref EmailData emailData)
+        [HarmonyPatch(typeof(EmailDataMag), "AddNewEmail", new Type[] { typeof(string), typeof(EmailData) })]
+        public static void EmailDataMag_AddNewEmail_Postfix(EmailDataMag __instance, ref string npcId, ref EmailData data)
         {
-            if (emailData.actionId == 2)
+            if (data.actionId == 2)
             {
-                int itemId = emailData.item[0];
+                int itemId = data.item[0];
                 if (itemId == 5119 || itemId == 5211 || itemId == 5308 || itemId == 5404 || itemId == 5517)
                 {
-                    emailData.isComplete = true;
-                    NPCEx.AddFavor(emailData.npcId, emailData.addHaoGanDu, false, true);
+                    data.isComplete = true;
+                    NPCEx.AddFavor(data.npcId, data.addHaoGanDu, false, true);
                     //int addCount = jsonData.instance.ItemJsonData[emailData.item[0].ToString()]["price"].I * emailData.item[1];
                     //NPCEx.AddQingFen(emailData.npcId, addCount, false);
-                    NpcJieSuanManager.inst.AddItemToNpcBackpack(emailData.npcId, emailData.item[0], emailData.item[1], null, false);
-                    __instance.AuToSendToPlayer(emailData.npcId, 997, 997, emailData.sendTime, null);
+                    NpcJieSuanManager.inst.AddItemToNpcBackpack(data.npcId, data.item[0], data.item[1], null, false);
+                    __instance.AuToSendToPlayer(data.npcId, 997, 997, data.sendTime, null);
                 }
             }
         }
