@@ -293,47 +293,22 @@ namespace zjr_mcs
         public static bool ElderTaskCtr_CreateTaskList_Prefix(script.MenPaiTask.ZhangLao.UI.Ctr.ElderTaskCtr __instance)
         {
             script.MenPaiTask.ElderTaskMag elderTaskMag = Tools.instance.getPlayer().ElderTaskMag;
+            List<script.MenPaiTask.ElderTask> tmp_list = new List<script.MenPaiTask.ElderTask>();
             foreach (script.MenPaiTask.ElderTask data in elderTaskMag.GetCompleteTaskList())
             {
-                Tools.instance.getPlayer().ElderTaskMag.PlayerGetTaskItem(data);
+                foreach (BaseItem needItem in data.needItemList)
+                {
+                    Tools.instance.getPlayer().addItem(needItem.Id, needItem.Count, needItem.Seid, ShowText: true);
+                }
+                tmp_list.Add(data);
+            }
+            foreach (var tmp in tmp_list)
+            {
+                elderTaskMag.RemoveCompleteTask(tmp);
             }
             return true;
         }
-
-        //[HarmonyPrefix]
-        //[HarmonyPatch(typeof(EmailDataMag), "SendToPlayer")]
-        //public static bool EmailDataMag_SendToPlayer_Prefix(EmailDataMag __instance, ref int npcId, ref int contentId, ref int contentNum, ref int actionId, ref int itemId, ref int itemNum, ref int outTime, ref int addHaoGanDu, ref string sendTime)
-        //{
-        //    if (actionId == 2)
-        //    {
-        //        //jsonData.instance.ItemJsonData[itemId.ToString()]["seid"].list.("7");
-        //        if (itemId == 5119 || itemId == 5211 || itemId == 5308 || itemId == 5404 || itemId == 5517)
-        //        {
-        //            if (NpcJieSuanManager.inst.ImportantNpcBangDingDictionary.ContainsKey(npcId))
-        //            {
-        //                npcId = NpcJieSuanManager.inst.ImportantNpcBangDingDictionary[npcId];
-        //            }
-        //            EmailData emailData = new EmailData(npcId, false, false, new List<int> { contentId, contentNum }, actionId, new List<int> { itemId, itemNum }, outTime, addHaoGanDu, sendTime);
-        //            string str = jsonData.instance.CyNpcDuiBaiData[contentId.ToString()][string.Format("dir{0}", contentNum)].Str;
-        //            __instance.GetEmailContentKey(str, emailData);
-        //            if (str.Contains("{DiDian}"))
-        //            {
-        //                emailData.sceneName = NpcJieSuanManager.inst.npcMap.GetNpcSceneName(npcId);
-        //            }
-        //            emailData.isComplete = true;
-        //            __instance.AddNewEmail(npcId.ToString(), emailData);
-
-        //            NPCEx.AddFavor(emailData.npcId, emailData.addHaoGanDu, false, true);
-        //            //int addCount = jsonData.instance.ItemJsonData[emailData.item[0].ToString()]["price"].I * emailData.item[1];
-        //            //NPCEx.AddQingFen(emailData.npcId, addCount, false);
-        //            NpcJieSuanManager.inst.AddItemToNpcBackpack(emailData.npcId, emailData.item[0], emailData.item[1], null, false);
-        //            __instance.AuToSendToPlayer(emailData.npcId, 997, 997, sendTime, null);
-
-        //            return false;
-        //        }
-        //    }
-        //    return true;
-        //}
+        
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EmailDataMag), "AddNewEmail", new Type[] { typeof(string), typeof(EmailData) })]
         public static void EmailDataMag_AddNewEmail_Postfix(EmailDataMag __instance, ref string npcId, ref EmailData data)
@@ -512,19 +487,6 @@ namespace zjr_mcs
         {
             if (emailData.isOld)
             {
-                //JSONObject ChuanYingData = Tools.instance.getPlayer().NewChuanYingList[emailData.oldId.ToString()];
-                //if (!ChuanYingData.HasField("ItemID") || ChuanYingData["ItemID"].I <= 0)
-                //{
-                //    return;
-                //}
-                //if (!ChuanYingData["ItemHasGet"].b)
-                //{
-                //    __instance.submitBtn.gameObject.SetActive(false);
-                //    ChuanYingData.SetField("ItemHasGet", true);
-                //    Tools.instance.getPlayer().addItem(ChuanYingData["ItemID"].I, 1, Tools.CreateItemSeid(ChuanYingData["ItemID"].I));
-                //    __instance.item.ShowHasGet();
-                //    __instance.UpdateSize();
-                //}
             }
             else
             {
