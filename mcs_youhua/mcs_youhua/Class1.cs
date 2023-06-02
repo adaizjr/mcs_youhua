@@ -308,7 +308,7 @@ namespace zjr_mcs
             }
             return true;
         }
-        
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EmailDataMag), "AddNewEmail", new Type[] { typeof(string), typeof(EmailData) })]
         public static void EmailDataMag_AddNewEmail_Postfix(EmailDataMag __instance, ref string npcId, ref EmailData data)
@@ -327,6 +327,74 @@ namespace zjr_mcs
                 }
             }
         }
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Avatar), "setMonstarDeath")]
+        public static void Avatar_setMonstarDeath_Postfix(Avatar __instance)
+        {
+            List<int> tmp_list = new List<int>() { 4101, 4102, 4103, 4104, 4105 };
+            List<int> list = new List<int>();
+            for (int i = 0; i < jsonData.instance.AvatarRandomJsonData.Count; i++)
+            {
+                int tmp_ke = int.Parse(jsonData.instance.AvatarRandomJsonData.keys[i]);
+                if (tmp_ke < 20000 && tmp_list.Contains(tmp_ke))
+                {
+                    if (DateTime.Parse(jsonData.instance.AvatarRandomJsonData[i]["BirthdayTime"].str).Year < __instance.worldTimeMag.getNowTime().Year)
+                        list.Add(tmp_ke);
+                }
+            }
+            for (int j = 0; j < list.Count; j++)
+            {
+                jsonData.instance.setMonstarDeath(list[j], false);
+            }
+        }
+        //[HarmonyPrefix]
+        //[HarmonyPatch(typeof(Avatar), "setMonstarDeath")]
+        //public static bool Avatar_setMonstarDeath_Prefix(Avatar __instance)
+        //{
+        //    int num = 0;
+        //    List<int> list = new List<int>();
+        //    for (int i = 0; i < jsonData.instance.AvatarRandomJsonData.Count; i++)
+        //    {
+        //        if (num == 0)
+        //        {
+        //            num++;
+        //        }
+        //        else
+        //        {
+        //            string text = jsonData.instance.AvatarRandomJsonData.keys[i];
+        //            if (int.Parse(text) < 20000 && jsonData.instance.AvatarJsonData.HasField(text))
+        //            {
+        //                int num2 = (int)jsonData.instance.AvatarJsonData[text]["shouYuan"].n;
+        //                if (num2 > 5000)
+        //                {
+        //                    num++;
+        //                }
+        //                else
+        //                {
+        //                    try
+        //                    {
+        //                        if (DateTime.Parse(jsonData.instance.AvatarRandomJsonData[i]["BirthdayTime"].str).Year + num2 <= __instance.worldTimeMag.getNowTime().Year)
+        //                        {
+        //                            int.Parse(text);
+        //                            list.Add(int.Parse(text));
+        //                        }
+        //                    }
+        //                    catch (Exception)
+        //                    {
+        //                        UIPopTip.Inst.Pop("设置NPC死亡出现错误，重置NPC数据以解决问题。", PopTipIconType.叹号);
+        //                        break;
+        //                    }
+        //                    num++;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    for (int j = 0; j < list.Count; j++)
+        //    {
+        //        jsonData.instance.setMonstarDeath(list[j], false);
+        //    }
+        //    return false;
+        //}
     }
 
     [HarmonyPatch(typeof(jsonData), "Preload")]
