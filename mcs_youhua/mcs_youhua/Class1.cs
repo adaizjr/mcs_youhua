@@ -1,8 +1,8 @@
-﻿using Bag;
-using BepInEx;
+﻿using BepInEx;
 using HarmonyLib;
 using JSONClass;
 using KBEngine;
+using mcs_youhua;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -20,6 +20,10 @@ namespace zjr_mcs
             Debug.Log("Hello,mcs_youhua!");
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
             Harmony.CreateAndPatchAll(typeof(youhuaBepInExMod));
+            Debug.Log("mcs_youhua,yuanying_jiaoyihui!");
+            Harmony.CreateAndPatchAll(typeof(yuanying_jiaoyihui));
+            Debug.Log("mcs_youhua,zhongmen_paifa!");
+            Harmony.CreateAndPatchAll(typeof(zhongmen_paifa));
         }
 
         [HarmonyPostfix]
@@ -95,219 +99,6 @@ namespace zjr_mcs
             }
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(script.ExchangeMeeting.UI.Ctr.PublishCtr), "Publish")]
-        public static bool PublishCtr_Publish_Prefix(script.ExchangeMeeting.UI.Ctr.PublishCtr __instance)
-        {
-            bool value = Traverse.Create(__instance).Method("CheckCanPublish", Array.Empty<object>()).GetValue<bool>();
-            if (value)
-            {
-                int num = 9999;
-                Dictionary<int, int> dictionary = new Dictionary<int, int>();
-                foreach (BaseSlot baseSlot in __instance.UI.PublishDataUI.GiveItems)
-                {
-                    bool flag = !baseSlot.IsNull();
-                    if (flag)
-                    {
-                        int id = baseSlot.Item.Id;
-                        int count = baseSlot.Item.Count;
-                        bool flag2 = dictionary.ContainsKey(id);
-                        if (flag2)
-                        {
-                            Dictionary<int, int> dictionary2 = dictionary;
-                            int key = id;
-                            dictionary2[key] += count;
-                        }
-                        else
-                        {
-                            dictionary.Add(id, count);
-                        }
-                    }
-                }
-                foreach (KeyValuePair<int, int> keyValuePair in dictionary)
-                {
-                    num = Math.Min(Tools.instance.getPlayer().getItemNum(keyValuePair.Key) / keyValuePair.Value, num);
-                    bool flag3 = keyValuePair.Key > 18000 && keyValuePair.Key < 19000;
-                    if (flag3)
-                    {
-                        num = 1;
-                    }
-                }
-                USelectNum.Show("发布<color=white>{num}</color>条相同的寄换请求", 1, num, delegate (int selectNum)
-                {
-                    bool flag4 = (int)Tools.instance.getPlayer().money < __instance.UI.PublishDataUI.DrawMoney * selectNum;
-                    if (flag4)
-                    {
-                        UIPopTip.Inst.Pop("灵石不足！", 0);
-                    }
-                    else
-                    {
-                        List<BaseItem> list = new List<BaseItem>();
-                        PlayerEx.Player.AddMoney(-__instance.UI.PublishDataUI.DrawMoney * selectNum);
-                        foreach (BaseSlot baseSlot2 in __instance.UI.PublishDataUI.GiveItems)
-                        {
-                            bool flag5 = !baseSlot2.IsNull();
-                            if (flag5)
-                            {
-                                list.Add(baseSlot2.Item.Clone());
-                                PlayerEx.Player.removeItem(baseSlot2.Item.Uid, baseSlot2.Item.Count * selectNum);
-                                script.ExchangeMeeting.UI.Interface.IExchangeUIMag.Inst.PlayerBag.RemoveTempItem(baseSlot2.Item.Uid, baseSlot2.Item.Count * (selectNum - 1));
-                            }
-                        }
-                        List<BaseItem> list2 = new List<BaseItem>();
-                        list2.Add(__instance.UI.PublishDataUI.NeedItem.Item);
-                        for (int i = 0; i < selectNum; i++)
-                        {
-                            script.ExchangeMeeting.Logic.Interface.IExchangeMag.Inst.ExchangeIO.CreatePlayerExchange(list2, list);
-                        }
-                        __instance.UpdatePlayerList();
-                        __instance.UI.PublishDataUI.Clear();
-                        script.ExchangeMeeting.UI.Interface.IExchangeUIMag.Inst.SubmitBag.CreateTempList();
-                    }
-                }, null);
-            }
-            return false;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(script.MenPaiTask.ZhangLao.UI.Ctr.CreateElderTaskCtr), "PublishTask")]
-        public static bool CreateElderTaskCtr_PublishTask_Prefix(ref script.MenPaiTask.ZhangLao.UI.Ctr.CreateElderTaskCtr __instance)
-        {
-            bool flag = Tools.instance.getPlayer().ElderTaskMag.PlayerAllotTask(__instance.SlotList);
-            if (flag)
-            {
-                __instance.ClearItemList();
-            }
-            return false;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(script.MenPaiTask.ElderTaskMag), "PlayerAllotTask")]
-        public static bool ElderTaskMag_PlayerAllotTask_Prefix(List<script.MenPaiTask.ZhangLao.UI.Base.ElderTaskSlot> slotList, ref bool __result, script.MenPaiTask.ElderTaskMag __instance)
-        {
-            Avatar player = Tools.instance.getPlayer();
-            List<BaseItem> list = new List<BaseItem>();
-            foreach (script.MenPaiTask.ZhangLao.UI.Base.ElderTaskSlot elderTaskSlot in slotList)
-            {
-                bool flag = !elderTaskSlot.IsNull();
-                if (flag)
-                {
-                    list.Add(elderTaskSlot.Item.Clone());
-                }
-            }
-            bool flag2 = list.Count == 0;
-            bool result;
-            if (flag2)
-            {
-                UIPopTip.Inst.Pop("至少需要一个物品", 0);
-                __result = false;
-                result = false;
-            }
-            else
-            {
-                bool flag3 = player.menPai <= 0;
-                if (flag3)
-                {
-                    UIPopTip.Inst.Pop("无权发布任务", 0);
-                    __result = false;
-                    result = false;
-                }
-                else
-                {
-                    script.MenPaiTask.ElderTask elderTask = new script.MenPaiTask.ElderTask();
-                    int num = 0;
-                    int num2 = 0;
-                    foreach (BaseItem baseItem in list)
-                    {
-                        elderTask.AddNeedItem(baseItem);
-                        num += __instance.GetNeedMoney(baseItem);
-                        int num3 = num2;
-                        num2 = num3 + 1;
-                    }
-                    elderTask.Money = num;
-                    bool flag4 = __instance.CheckCanAllotTask(num, num2);
-                    if (flag4)
-                    {
-                        int num4 = 100;
-                        bool flag5 = num <= 0;
-                        if (flag5)
-                        {
-                            num = 1;
-                        }
-                        bool flag6 = num2 <= 0;
-                        if (flag6)
-                        {
-                            num2 = 1;
-                        }
-                        num4 = Math.Min((int)player.money / num, num4);
-                        num4 = Math.Min(PlayerEx.GetShengWang((int)player.menPai) / num2, num4);
-                        adf(elderTask, num, num2, num4, __instance);
-
-                        __result = true;
-                        result = false;
-                    }
-                    else
-                    {
-                        UIPopTip.Inst.Pop("灵石或声望不足", 0);
-                        __result = false;
-                        result = false;
-                    }
-                }
-            }
-            return result;
-        }
-        static void adf(script.MenPaiTask.ElderTask i_et, int num, int num2, int num4, script.MenPaiTask.ElderTaskMag __instance)
-        {
-            Avatar player = Tools.instance.getPlayer();
-
-            USelectNum.Show("发布<color=white>{num}</color>条相同的任务", 1, num4, delegate (int selectNum)
-            {
-                for (int i = 0; i < selectNum; i++)
-                {
-                    script.MenPaiTask.ElderTask elderTask = new script.MenPaiTask.ElderTask();
-                    foreach (BaseItem baseItem2 in i_et.needItemList)
-                    {
-                        elderTask.AddNeedItem(baseItem2);
-                    }
-                    elderTask.Money = i_et.Money;
-                    __instance.AddWaitAcceptTask(elderTask);
-                }
-                player.AddMoney(-num * selectNum);
-                PlayerEx.AddShengWang((int)player.menPai, -num2 * selectNum, false);
-                script.MenPaiTask.ZhangLao.UI.ElderTaskUIMag.Inst.ElderTaskUI.Ctr.CreateTaskList();
-                script.MenPaiTask.ZhangLao.UI.ElderTaskUIMag.Inst.OpenElderTaskUI();
-                UIPopTip.Inst.Pop("发布任务成功", 0);
-            }, null);
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(script.ExchangeMeeting.Logic.UpdateExchange), "SuccessExchange", new Type[] { typeof(script.ExchangeMeeting.Logic.Interface.IExchangeData) })]
-        public static bool UpdateExchange_SuccessExchange_Prefix(script.ExchangeMeeting.Logic.UpdateExchange __instance, ref script.ExchangeMeeting.Logic.Interface.IExchangeData data)
-        {
-            Tools.instance.getPlayer().addItem(data.NeedItems[0].Id, 1, Tools.CreateItemSeid(data.NeedItems[0].Id), true);
-            return false;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(script.MenPaiTask.ZhangLao.UI.Ctr.ElderTaskCtr), "CreateTaskList")]
-        public static bool ElderTaskCtr_CreateTaskList_Prefix(script.MenPaiTask.ZhangLao.UI.Ctr.ElderTaskCtr __instance)
-        {
-            script.MenPaiTask.ElderTaskMag elderTaskMag = Tools.instance.getPlayer().ElderTaskMag;
-            List<script.MenPaiTask.ElderTask> tmp_list = new List<script.MenPaiTask.ElderTask>();
-            foreach (script.MenPaiTask.ElderTask data in elderTaskMag.GetCompleteTaskList())
-            {
-                foreach (BaseItem needItem in data.needItemList)
-                {
-                    Tools.instance.getPlayer().addItem(needItem.Id, needItem.Count, needItem.Seid, ShowText: true);
-                }
-                tmp_list.Add(data);
-            }
-            foreach (var tmp in tmp_list)
-            {
-                elderTaskMag.RemoveCompleteTask(tmp);
-            }
-            return true;
-        }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EmailDataMag), "AddNewEmail", new Type[] { typeof(string), typeof(EmailData) })]
@@ -347,54 +138,6 @@ namespace zjr_mcs
                 jsonData.instance.setMonstarDeath(list[j], false);
             }
         }
-        //[HarmonyPrefix]
-        //[HarmonyPatch(typeof(Avatar), "setMonstarDeath")]
-        //public static bool Avatar_setMonstarDeath_Prefix(Avatar __instance)
-        //{
-        //    int num = 0;
-        //    List<int> list = new List<int>();
-        //    for (int i = 0; i < jsonData.instance.AvatarRandomJsonData.Count; i++)
-        //    {
-        //        if (num == 0)
-        //        {
-        //            num++;
-        //        }
-        //        else
-        //        {
-        //            string text = jsonData.instance.AvatarRandomJsonData.keys[i];
-        //            if (int.Parse(text) < 20000 && jsonData.instance.AvatarJsonData.HasField(text))
-        //            {
-        //                int num2 = (int)jsonData.instance.AvatarJsonData[text]["shouYuan"].n;
-        //                if (num2 > 5000)
-        //                {
-        //                    num++;
-        //                }
-        //                else
-        //                {
-        //                    try
-        //                    {
-        //                        if (DateTime.Parse(jsonData.instance.AvatarRandomJsonData[i]["BirthdayTime"].str).Year + num2 <= __instance.worldTimeMag.getNowTime().Year)
-        //                        {
-        //                            int.Parse(text);
-        //                            list.Add(int.Parse(text));
-        //                        }
-        //                    }
-        //                    catch (Exception)
-        //                    {
-        //                        UIPopTip.Inst.Pop("设置NPC死亡出现错误，重置NPC数据以解决问题。", PopTipIconType.叹号);
-        //                        break;
-        //                    }
-        //                    num++;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    for (int j = 0; j < list.Count; j++)
-        //    {
-        //        jsonData.instance.setMonstarDeath(list[j], false);
-        //    }
-        //    return false;
-        //}
     }
 
     [HarmonyPatch(typeof(jsonData), "Preload")]
