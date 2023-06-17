@@ -209,6 +209,44 @@ namespace zjr_mcs
                 player.emailDateMag.hasReadEmailDictionary[mailPatch.mailid.ToString()].Clear();
             }
             player.emailDateMag.AddNewEmail(mailPatch.mailid.ToString(), new EmailData(mailPatch.mailid, 1, true, true, player.worldTimeMag.nowTime));
+
+            foreach (var tmp in jsonData.instance.AvatarJsonData.list)
+            {
+                int tmp_id = tmp["id"].I;
+                int tmp_level = tmp["Level"].I;
+                int tmp_big = (tmp_level - 1) / 3;
+                bool tmp_bimportant = tmp["isImportant"].b;
+                if (tmp_id >= 20000 && tmp_bimportant)
+                {
+                    if (tmp_big >= 1)
+                    {
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5211, 3, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5210, 3, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5206, 3, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5207, 3, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5209, 3, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5208, 3, null, false);
+                    }
+                    if (tmp_big >= 2)
+                    {
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5308, 5, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5307, 5, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5305, 3, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5320, 3, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5306, 5, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5315, 5, null, false);
+                    }
+                    if (tmp_big >= 3)
+                    {
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5404, 5, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5418, 2, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5405, 2, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5415, 3, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5417, 5, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5416, 1, null, false);
+                    }
+                }
+            }
         }
     }
 
