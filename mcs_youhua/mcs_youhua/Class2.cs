@@ -46,17 +46,21 @@ namespace mcs_youhua
         [HarmonyPatch(typeof(ABItemSourceIO), "Get", new Type[] { typeof(int) })]
         public static bool ABItemSourceIO_Get_Prefix(ABItemSourceIO __instance, ref bool __result, ref int id)
         {
+            __result = my_get(id);
+            return false;
+        }
+        static bool my_get(int id)
+        {
             if (!ABItemSource.Get().ItemSourceDataDic.ContainsKey(id))
             {
                 Debug.LogError("物品Id：" + id + "不在自动生成表中");
-                __result = false;
+                return false;
             }
             if (ABItemSource.Get().ItemSourceDataDic[id].Count > 0)
             {
                 ABItemSource.Get().ItemSourceDataDic[id].Count--;
-                __result = true;
+                return true;
             }
-            __result = false;
             return false;
         }
         [HarmonyPrefix]

@@ -215,13 +215,12 @@ namespace zjr_mcs
                 int tmp_id = tmp["id"].I;
                 int tmp_level = tmp["Level"].I;
                 int tmp_big = (tmp_level - 1) / 3;
-                bool tmp_bimportant = tmp["isImportant"].b;
-                if (tmp_id >= 20000 && tmp_bimportant)
+                if (tmp_id >= 20000 && tmp.HasField("isImportant"))
                 {
                     if (tmp_big >= 1)
                     {
                         NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5211, 3, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5210, 3, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5210, 5, null, false);
                         NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5206, 3, null, false);
                         NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5207, 3, null, false);
                         NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5209, 3, null, false);
