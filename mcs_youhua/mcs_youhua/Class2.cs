@@ -70,7 +70,7 @@ namespace mcs_youhua
             bool value = Traverse.Create(__instance).Method("CheckCanPublish", Array.Empty<object>()).GetValue<bool>();
             if (value)
             {
-                int num = 9999;
+                int num = 100;
                 Dictionary<int, int> dictionary = new Dictionary<int, int>();
                 foreach (BaseSlot baseSlot in __instance.UI.PublishDataUI.GiveItems)
                 {

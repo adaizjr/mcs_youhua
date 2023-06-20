@@ -115,6 +115,7 @@ namespace zjr_mcs
                     //NPCEx.AddQingFen(emailData.npcId, addCount, false);
                     NpcJieSuanManager.inst.AddItemToNpcBackpack(data.npcId, data.item[0], data.item[1], null, false);
                     __instance.AuToSendToPlayer(data.npcId, 997, 997, data.sendTime, null);
+                    NpcJieSuanManager.inst.npcUseItem.autoUseItem(data.npcId);
                 }
             }
         }
@@ -215,7 +216,7 @@ namespace zjr_mcs
                 int tmp_id = tmp["id"].I;
                 int tmp_level = tmp["Level"].I;
                 int tmp_big = (tmp_level - 1) / 3;
-                if (tmp_id >= 20000 && tmp.HasField("isImportant"))
+                if (tmp_id >= 20000 && tmp.HasField("isImportant") && tmp["isImportant"].b)
                 {
                     if (tmp_big >= 1)
                     {
@@ -244,6 +245,7 @@ namespace zjr_mcs
                         NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5417, 5, null, false);
                         NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5416, 1, null, false);
                     }
+                    NpcJieSuanManager.inst.npcUseItem.autoUseItem(tmp_id);
                 }
             }
         }
