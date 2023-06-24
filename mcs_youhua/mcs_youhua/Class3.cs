@@ -13,13 +13,7 @@ using UnityEngine;
 namespace mcs_youhua
 {
     internal class zhongmen_paifa
-    {// 在插件启动时会直接调用Awake()方法
-
-        void Awake()
-        {
-            // 使用Debug.Log()方法来将文本输出到控制台
-        }
-
+    {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CreateElderTaskCtr), "PublishTask")]
         public static bool CreateElderTaskCtr_PublishTask_Prefix(ref CreateElderTaskCtr __instance)

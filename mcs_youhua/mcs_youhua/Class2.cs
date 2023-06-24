@@ -14,12 +14,7 @@ using UnityEngine;
 namespace mcs_youhua
 {
     internal class yuanying_jiaoyihui
-    {// 在插件启动时会直接调用Awake()方法
-
-        void Awake()
-        {
-            // 使用Debug.Log()方法来将文本输出到控制台
-        }
+    {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(ItemSourceUpdate), "Update", new Type[] { typeof(int) })]
         public static bool ItemSourceUpdate_Update_Prefix(ItemSourceUpdate __instance, ref int times)

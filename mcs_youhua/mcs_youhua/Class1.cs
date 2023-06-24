@@ -24,6 +24,8 @@ namespace zjr_mcs
             Harmony.CreateAndPatchAll(typeof(yuanying_jiaoyihui));
             Debug.Log("mcs_youhua,zhongmen_paifa!");
             Harmony.CreateAndPatchAll(typeof(zhongmen_paifa));
+            Debug.Log("mcs_youhua,chuanyin_zengqiang!");
+            Harmony.CreateAndPatchAll(typeof(chuanyin_zengqiang));
         }
 
         [HarmonyPostfix]
@@ -95,7 +97,7 @@ namespace zjr_mcs
                         tmp_ed.Add(tmp);
                 }
                 UIPopTip.Inst.Pop("清空垃圾邮件！", 0);
-                Tools.instance.getPlayer().emailDateMag.AddNewEmail(mailPatch.mailid.ToString(), new EmailData(mailPatch.mailid, 1, true, true, Tools.instance.getPlayer().worldTimeMag.nowTime));
+                Tools.instance.getPlayer().emailDateMag.AddNewEmail(tongjiPatch.mailid.ToString(), new EmailData(tongjiPatch.mailid, 1, true, true, Tools.instance.getPlayer().worldTimeMag.nowTime));
             }
         }
 
@@ -201,15 +203,15 @@ namespace zjr_mcs
             }
             Avatar player = Tools.instance.getPlayer();
 
-            if (!player.emailDateMag.cyNpcList.Contains(mailPatch.mailid))
+            if (!player.emailDateMag.cyNpcList.Contains(tongjiPatch.mailid))
             {
-                player.emailDateMag.cyNpcList.Add(mailPatch.mailid);
+                player.emailDateMag.cyNpcList.Add(tongjiPatch.mailid);
             }
-            if (player.emailDateMag.hasReadEmailDictionary.ContainsKey(mailPatch.mailid.ToString()))
+            if (player.emailDateMag.hasReadEmailDictionary.ContainsKey(tongjiPatch.mailid.ToString()))
             {
-                player.emailDateMag.hasReadEmailDictionary[mailPatch.mailid.ToString()].Clear();
+                player.emailDateMag.hasReadEmailDictionary[tongjiPatch.mailid.ToString()].Clear();
             }
-            player.emailDateMag.AddNewEmail(mailPatch.mailid.ToString(), new EmailData(mailPatch.mailid, 1, true, true, player.worldTimeMag.nowTime));
+            player.emailDateMag.AddNewEmail(tongjiPatch.mailid.ToString(), new EmailData(tongjiPatch.mailid, 1, true, true, player.worldTimeMag.nowTime));
 
             foreach (var tmp in jsonData.instance.AvatarJsonData.list)
             {
@@ -252,7 +254,7 @@ namespace zjr_mcs
     }
 
     [HarmonyPatch(typeof(CyEmail), "GetContent", new Type[] { typeof(string), typeof(EmailData) })]
-    class mailPatch
+    class tongjiPatch
     {
         public static int mailid = 2;
         public static bool Prefix(CyEmail __instance, ref string __result, ref string msg, ref EmailData emailData)
