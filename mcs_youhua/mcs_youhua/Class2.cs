@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace mcs_youhua
+namespace zjr_mcs
 {
     internal class yuanying_jiaoyihui
     {

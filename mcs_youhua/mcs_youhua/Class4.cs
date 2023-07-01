@@ -4,7 +4,7 @@ using KillSystem;
 using System;
 using System.Collections.Generic;
 
-namespace mcs_youhua
+namespace zjr_mcs
 {
     internal class chuanyin_zengqiang
     {

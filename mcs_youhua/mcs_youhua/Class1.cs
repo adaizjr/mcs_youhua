@@ -2,7 +2,6 @@
 using HarmonyLib;
 using JSONClass;
 using KBEngine;
-using mcs_youhua;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -119,26 +118,6 @@ namespace zjr_mcs
                     __instance.AuToSendToPlayer(data.npcId, 997, 997, data.sendTime, null);
                     NpcJieSuanManager.inst.npcUseItem.autoUseItem(data.npcId);
                 }
-            }
-        }
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Avatar), "setMonstarDeath")]
-        public static void Avatar_setMonstarDeath_Postfix(Avatar __instance)
-        {
-            List<int> tmp_list = new List<int>() { 4101, 4102, 4103, 4104, 4105 };
-            List<int> list = new List<int>();
-            for (int i = 0; i < jsonData.instance.AvatarRandomJsonData.Count; i++)
-            {
-                int tmp_ke = int.Parse(jsonData.instance.AvatarRandomJsonData.keys[i]);
-                if (tmp_ke < 20000 && tmp_list.Contains(tmp_ke))
-                {
-                    if (DateTime.Parse(jsonData.instance.AvatarRandomJsonData[i]["BirthdayTime"].str).Year < __instance.worldTimeMag.getNowTime().Year)
-                        list.Add(tmp_ke);
-                }
-            }
-            for (int j = 0; j < list.Count; j++)
-            {
-                jsonData.instance.setMonstarDeath(list[j], false);
             }
         }
     }
