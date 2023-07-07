@@ -229,6 +229,9 @@ namespace zjr_mcs
                     NpcJieSuanManager.inst.npcUseItem.autoUseItem(tmp_id);
                 }
             }
+            {
+                KillSystem.KillManager.Inst.NextRen = KillSystem.KillManager.Inst.NextDi = KillSystem.KillManager.Inst.NextTian = PlayerEx.Player.worldTimeMag.getNowTime();
+            }
         }
     }
 

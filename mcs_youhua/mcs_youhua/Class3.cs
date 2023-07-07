@@ -1,5 +1,4 @@
 ﻿using Bag;
-using BepInEx;
 using HarmonyLib;
 using KBEngine;
 using script.MenPaiTask;
@@ -8,7 +7,6 @@ using script.MenPaiTask.ZhangLao.UI.Base;
 using script.MenPaiTask.ZhangLao.UI.Ctr;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace zjr_mcs
 {
@@ -32,7 +30,7 @@ namespace zjr_mcs
         {
             Avatar player = Tools.instance.getPlayer();
             List<BaseItem> list = new List<BaseItem>();
-            foreach (script.MenPaiTask.ZhangLao.UI.Base.ElderTaskSlot elderTaskSlot in slotList)
+            foreach (ElderTaskSlot elderTaskSlot in slotList)
             {
                 bool flag = !elderTaskSlot.IsNull();
                 if (flag)
@@ -59,7 +57,7 @@ namespace zjr_mcs
                 }
                 else
                 {
-                    script.MenPaiTask.ElderTask elderTask = new script.MenPaiTask.ElderTask();
+                    ElderTask elderTask = new ElderTask();
                     int num = 0;
                     int num2 = 0;
                     foreach (BaseItem baseItem in list)
