@@ -100,6 +100,30 @@ namespace zjr_mcs
             }
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EmailDataMag), "AddNewEmail", new Type[] { typeof(string), typeof(EmailData) })]
+        public static bool EmailDataMag_AddNewEmail_Prefix(EmailDataMag __instance, ref string npcId, ref EmailData data)
+        {
+            if (data.actionId == 1)
+            {
+                if (data.item[1] > 0)
+                {
+                    Tools.instance.getPlayer().addItem(data.item[0], data.item[1], Tools.CreateItemSeid(data.item[0]), true);
+                    data.item[1] = -1;
+
+                    if (data.RandomTask != null)
+                    {
+                        if (__instance.HasReceiveList == null)
+                        {
+                            __instance.HasReceiveList = new List<int>();
+                        }
+                        __instance.HasReceiveList.Add(data.RandomTask.CyId);
+                    }
+                    return false;
+                }
+            }
+            return true;
+        }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EmailDataMag), "AddNewEmail", new Type[] { typeof(string), typeof(EmailData) })]
