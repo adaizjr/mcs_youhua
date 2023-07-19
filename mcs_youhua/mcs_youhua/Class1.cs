@@ -70,25 +70,32 @@ namespace zjr_mcs
                     List<EmailData> tmp_ed = tmp_kvp.Value;
                     foreach (var tmp in tmp_ed)
                     {
-                        if (tmp.actionId == 1)
+                        try
                         {
-                            if (tmp.item[1] > 0)
+                            if (tmp.actionId == 1)
+                            {
+                                if (tmp.item[1] > 0)
+                                    tmp_ed_new.Add(tmp);
+                            }
+                            else if (tmp.actionId == 2)
+                            {
+                                if (!tmp.CheckIsOut() && !tmp.isComplete)
+                                    tmp_ed_new.Add(tmp);
+                            }
+                            else if (tmp.isAnswer)
+                            {
+                            }
+                            else if (tmp.isPlayer)
+                            {
+                            }
+                            else
+                            {
                                 tmp_ed_new.Add(tmp);
+                            }
                         }
-                        else if (tmp.actionId == 2)
+                        catch
                         {
-                            if (!tmp.CheckIsOut() && !tmp.isComplete)
-                                tmp_ed_new.Add(tmp);
-                        }
-                        else if (tmp.isAnswer)
-                        {
-                        }
-                        else if (tmp.isPlayer)
-                        {
-                        }
-                        else
-                        {
-                            tmp_ed_new.Add(tmp);
+                            Debug.LogError(tmp_kvp.Key + ",actionId:" + tmp.actionId.ToString());
                         }
                     }
                     tmp_ed.Clear();
@@ -111,15 +118,18 @@ namespace zjr_mcs
                     Tools.instance.getPlayer().addItem(data.item[0], data.item[1], Tools.CreateItemSeid(data.item[0]), true);
                     data.item[1] = -1;
 
-                    if (data.RandomTask != null)
+                    if (data.item[0] != 6307)
                     {
-                        if (__instance.HasReceiveList == null)
+                        if (data.RandomTask != null)
                         {
-                            __instance.HasReceiveList = new List<int>();
+                            if (__instance.HasReceiveList == null)
+                            {
+                                __instance.HasReceiveList = new List<int>();
+                            }
+                            __instance.HasReceiveList.Add(data.RandomTask.CyId);
                         }
-                        __instance.HasReceiveList.Add(data.RandomTask.CyId);
+                        return false;
                     }
-                    return false;
                 }
             }
             return true;
@@ -225,29 +235,29 @@ namespace zjr_mcs
                 {
                     if (tmp_big >= 1)
                     {
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5211, 3, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5210, 5, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5206, 3, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5207, 3, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5209, 3, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5208, 3, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5211, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5210, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5206, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5207, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5209, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5208, 1, null, false);
                     }
                     if (tmp_big >= 2)
                     {
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5308, 5, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5307, 5, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5305, 3, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5320, 3, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5306, 5, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5315, 5, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5308, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5307, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5305, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5320, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5306, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5315, 1, null, false);
                     }
                     if (tmp_big >= 3)
                     {
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5404, 5, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5418, 2, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5405, 2, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5415, 3, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5417, 5, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5404, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5418, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5405, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5415, 1, null, false);
+                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5417, 1, null, false);
                         NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5416, 1, null, false);
                     }
                     NpcJieSuanManager.inst.npcUseItem.autoUseItem(tmp_id);
