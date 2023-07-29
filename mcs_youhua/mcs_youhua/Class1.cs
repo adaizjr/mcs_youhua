@@ -118,7 +118,7 @@ namespace zjr_mcs
                     Tools.instance.getPlayer().addItem(data.item[0], data.item[1], Tools.CreateItemSeid(data.item[0]), true);
                     data.item[1] = -1;
 
-                    if (data.item[0] != 6307)
+                    if (data.item[0] != 6307 && data.content != null && data.content[0] > 176)
                     {
                         if (data.RandomTask != null)
                         {
@@ -162,10 +162,12 @@ namespace zjr_mcs
         public static void Postfix(jsonData __instance)
         {
             if (__instance.RandomList.Count < 9500)
+            {
                 for (int i = 0; i < 9500; i++)
                 {
                     __instance.RandomList.Add(jsonData.GetRandom());
                 }
+            }
         }
     }
 
