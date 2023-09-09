@@ -31,7 +31,18 @@ namespace zjr_mcs
         [HarmonyPatch(typeof(UINPCSVItem), "RefreshUI")]
         public static void UINPCSVItem_RefreshUI_Postfix(UINPCSVItem __instance)
         {
-            __instance.NPCTitle.text = __instance.NPCData.Title + "" + __instance.NPCData.BigLevel.ToString();
+            if (__instance.NPCData.BigLevel >= 3)
+            {
+                int tmp_jindanlv = 7;
+                JSONObject npcData = NpcJieSuanManager.inst.GetNpcData(__instance.NPCData.ID);
+                if (npcData.HasField("JinDanData"))
+                {
+                    tmp_jindanlv = npcData["JinDanData"]["JinDanLv"].I;
+                }
+                __instance.NPCTitle.text = __instance.NPCData.Title + "" + (__instance.NPCData.BigLevel * 10 + tmp_jindanlv).ToString();
+            }
+            else
+                __instance.NPCTitle.text = __instance.NPCData.Title + "" + __instance.NPCData.BigLevel.ToString();
         }
 
         private void Update()
@@ -76,10 +87,14 @@ namespace zjr_mcs
                             {
                                 if (tmp.item[1] > 0)
                                     tmp_ed_new.Add(tmp);
+                                else if (tmp.content != null && tmp.content[0] <= 176)
+                                    tmp_ed_new.Add(tmp);
                             }
                             else if (tmp.actionId == 2)
                             {
                                 if (!tmp.CheckIsOut() && !tmp.isComplete)
+                                    tmp_ed_new.Add(tmp);
+                                else if (tmp.content != null && tmp.content[0] >= 593 && tmp.content[0] <= 608)
                                     tmp_ed_new.Add(tmp);
                             }
                             else if (tmp.isAnswer)
