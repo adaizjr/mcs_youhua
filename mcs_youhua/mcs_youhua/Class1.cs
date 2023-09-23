@@ -31,18 +31,19 @@ namespace zjr_mcs
         [HarmonyPatch(typeof(UINPCSVItem), "RefreshUI")]
         public static void UINPCSVItem_RefreshUI_Postfix(UINPCSVItem __instance)
         {
+            int tmp_shuzi = __instance.NPCData.BigLevel * 10 + (__instance.NPCData.XingGe < 10 ? 1 : 2);
             if (__instance.NPCData.BigLevel >= 3)
             {
-                int tmp_jindanlv = 7;
+                int tmp_jindan = 7;
                 JSONObject npcData = NpcJieSuanManager.inst.GetNpcData(__instance.NPCData.ID);
                 if (npcData.HasField("JinDanData"))
                 {
-                    tmp_jindanlv = npcData["JinDanData"]["JinDanLv"].I;
+                    tmp_jindan = npcData["JinDanData"]["JinDanLv"].I;
                 }
-                __instance.NPCTitle.text = __instance.NPCData.Title + "" + (__instance.NPCData.BigLevel * 10 + tmp_jindanlv).ToString();
+                __instance.NPCTitle.text = __instance.NPCData.Title + "" + (tmp_shuzi * 10 + tmp_jindan).ToString();
             }
             else
-                __instance.NPCTitle.text = __instance.NPCData.Title + "" + __instance.NPCData.BigLevel.ToString();
+                __instance.NPCTitle.text = __instance.NPCData.Title + "" + tmp_shuzi.ToString();
         }
 
         private void Update()
