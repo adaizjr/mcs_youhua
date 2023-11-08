@@ -98,6 +98,10 @@ namespace zjr_mcs
                                 else if (tmp.content != null && tmp.content[0] >= 593 && tmp.content[0] <= 608)
                                     tmp_ed_new.Add(tmp);
                             }
+                            else if (tmp.actionId == 999)
+                            {
+                                tmp_ed_new.Add(tmp);
+                            }
                             else if (tmp.isAnswer)
                             {
                             }
@@ -129,7 +133,7 @@ namespace zjr_mcs
         {
             if (data.actionId == 1)
             {
-                if (data.item[1] > 0)
+                if (data.item != null && data.item[1] > 0)
                 {
                     Tools.instance.getPlayer().addItem(data.item[0], data.item[1], Tools.CreateItemSeid(data.item[0]), true);
                     data.item[1] = -1;
