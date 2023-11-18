@@ -286,7 +286,8 @@ namespace zjr_mcs
                 }
             }
             {
-                KillSystem.KillManager.Inst.NextRen = KillSystem.KillManager.Inst.NextDi = KillSystem.KillManager.Inst.NextTian = PlayerEx.Player.worldTimeMag.getNowTime();
+                //KillSystem.KillManager.Inst.NextRen = 
+                KillSystem.KillManager.Inst.NextDi = KillSystem.KillManager.Inst.NextTian = PlayerEx.Player.worldTimeMag.getNowTime();
             }
         }
     }
