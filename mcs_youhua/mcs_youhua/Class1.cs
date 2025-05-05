@@ -257,30 +257,30 @@ namespace zjr_mcs
                 {
                     if (tmp_big >= 1)
                     {
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5211, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5210, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5206, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5207, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5209, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5208, 1, null, false);
+                        safe_add_danyao(tmp_id, 5211);
+                        safe_add_danyao(tmp_id, 5210);
+                        safe_add_danyao(tmp_id, 5206);
+                        safe_add_danyao(tmp_id, 5207);
+                        safe_add_danyao(tmp_id, 5209);
+                        safe_add_danyao(tmp_id, 5208);
                     }
                     if (tmp_big >= 2)
                     {
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5308, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5307, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5305, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5320, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5306, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5315, 1, null, false);
+                        safe_add_danyao(tmp_id, 5308);
+                        safe_add_danyao(tmp_id, 5307);
+                        safe_add_danyao(tmp_id, 5305);
+                        safe_add_danyao(tmp_id, 5320);
+                        safe_add_danyao(tmp_id, 5306);
+                        safe_add_danyao(tmp_id, 5315);
                     }
                     if (tmp_big >= 3)
                     {
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5404, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5418, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5405, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5415, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5417, 1, null, false);
-                        NpcJieSuanManager.inst.AddItemToNpcBackpack(tmp_id, 5416, 1, null, false);
+                        safe_add_danyao(tmp_id, 5404);
+                        safe_add_danyao(tmp_id, 5418);
+                        safe_add_danyao(tmp_id, 5405);
+                        safe_add_danyao(tmp_id, 5415);
+                        safe_add_danyao(tmp_id, 5417);
+                        safe_add_danyao(tmp_id, 5416);
                     }
                     NpcJieSuanManager.inst.npcUseItem.autoUseItem(tmp_id);
                 }
@@ -289,6 +289,13 @@ namespace zjr_mcs
                 //KillSystem.KillManager.Inst.NextRen = 
                 KillSystem.KillManager.Inst.NextDi = KillSystem.KillManager.Inst.NextTian = PlayerEx.Player.worldTimeMag.getNowTime();
             }
+        }
+        static void safe_add_danyao(int i_npcid, int i_item_id)
+        {
+            int danYaoCanUseNum = NpcJieSuanManager.inst.npcUseItem.GetDanYaoCanUseNum(i_npcid, i_item_id);
+            if (danYaoCanUseNum <= 0)
+                return;
+            NpcJieSuanManager.inst.AddItemToNpcBackpack(i_npcid, i_item_id, 1, null, false);
         }
     }
 
