@@ -64,6 +64,17 @@ namespace zjr_mcs
                             goto IL_2FC;
                         }
                     }
+                    if (type == -11)
+                    {
+                        int tmp_big_level = (jsonData.instance.AvatarJsonData[num.ToString()].TryGetField("Level").I + 2) / 3;
+                        if (tmp_big_level == 3 && !NpcJieSuanManager.inst.IsDeath(num))
+                        {
+                        }
+                        else
+                        {
+                            goto IL_2FC;
+                        }
+                    }
                     CyFriendCell component2 = Tools.InstantiateGameObject(__instance.cyNpcCell, __instance.npcCellParent.transform).GetComponent<CyFriendCell>();
                     component2.Init(__instance.friendList[i]);
                     __instance.friendCells.Add(component2);
@@ -143,6 +154,12 @@ namespace zjr_mcs
                         __instance.selectPanel.SetActive(false);
                         __instance.curSelect.text = "失联";
                         InitNpcList(__instance, -10);
+                    });
+                    Tools.InstantiateGameObject(__instance.cySelectCell, __instance.selectPanel.transform).GetComponent<CySelectCell>().Init("金丹", delegate
+                    {
+                        __instance.selectPanel.SetActive(false);
+                        __instance.curSelect.text = "金丹";
+                        InitNpcList(__instance, -11);
                     });
                 }
                 __instance.sanJiao.transform.localRotation.Set(0f, 0f, 0f, 0f);

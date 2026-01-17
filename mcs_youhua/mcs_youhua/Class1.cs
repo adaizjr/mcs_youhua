@@ -429,4 +429,26 @@ namespace zjr_mcs
             tmp_method_ClickYiWang.Invoke(__instance, null);
         }
     }
+
+    //[HarmonyPatch(typeof(GUIPackage.ItemCell), "showYiWu")]
+    //class ItemCellPatch
+    //{
+    //    public static void Postfix(GUIPackage.ItemCell __instance)
+    //    {
+    //        GUIPackage.item item = __instance.inventory.inventory[int.Parse(__instance.name)];
+    //        JSONObject jsonobject = jsonData.instance.ItemJsonData[item.itemID.ToString()];
+    //        if ((int)jsonobject["type"].n == 12)
+    //        {
+    //            int id = (int)jsonData.instance.ItemsSeidJsonData[32][string.Concat(item.itemID)]["value1"].n;
+    //            if (PlayerEx.HasShuangXiuSkill(id))
+    //            {
+    //                __instance.YiWu.SetActive(true);
+    //            }
+    //            else
+    //            {
+    //                __instance.YiWu.SetActive(false);
+    //            }
+    //        }
+    //    }
+    //}
 }
